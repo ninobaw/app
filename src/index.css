@@ -1,0 +1,535 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 14 100% 57%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 14 100% 57%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Nouvelles variables pour les variantes de toast */
+    --success: 140 80% 40%; /* Une couleur verte pour le succès */
+    --success-foreground: 0 0% 100%; /* Texte blanc */
+    --warning: 40 90% 50%; /* Une couleur orange pour l'avertissement */
+    --warning-foreground: 222.2 84% 4.9%; /* Texte sombre */
+    --info: 200 80% 50%; /* Une couleur bleue pour l'information */
+    --info-foreground: 0 0% 100%; /* Texte blanc */
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 14 100% 57%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 14 100% 57%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Nouvelles variables pour les variantes de toast (mode sombre) */
+    --success: 140 70% 60%; /* Une couleur verte plus claire pour le succès */
+    --success-foreground: 222.2 84% 4.9%; /* Texte sombre */
+    --warning: 40 80% 60%; /* Une couleur orange plus claire pour l'avertissement */
+    --warning-foreground: 222.2 84% 4.9%; /* Texte sombre */
+    --info: 200 70% 60%; /* Une couleur bleue plus claire pour l'information */
+    --info-foreground: 222.2 84% 4.9%; /* Texte sombre */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+@layer utilities {
+  .aviation-gradient {
+    background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* Animations personnalisées */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Scrollbar personnalisée pour les tags */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thumb-slate-300::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225);
+  border-radius: 3px;
+}
+
+.scrollbar-thumb-slate-300::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(148 163 184);
+}
+
+.scrollbar-track-slate-100::-webkit-scrollbar-track {
+  background-color: rgb(241 245 249);
+  border-radius: 3px;
+}
+
+.scrollbar-thumb-blue-300::-webkit-scrollbar-thumb {
+  background-color: rgb(147 197 253);
+  border-radius: 2px;
+}
+
+.scrollbar-thumb-blue-300::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(59 130 246);
+}
+
+.scrollbar-track-blue-50::-webkit-scrollbar-track {
+  background-color: rgb(239 246 255);
+  border-radius: 2px;
+}
+
+/* Nouvelle animation pour la barre de progression des toasts */
+@keyframes toast-progress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Animations personnalisées pour la page d'expiration */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes bounce-in {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.3) translateY(-50px); 
+  }
+  50% { 
+    opacity: 1; 
+    transform: scale(1.05) translateY(-10px); 
+  }
+  70% { 
+    transform: scale(0.95) translateY(5px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+@keyframes fade-in {
+  0% { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 3s ease infinite;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+/* Animation pour les correspondances non répondues - Clignotement rouge */
+@keyframes blink-red {
+  0%, 50% {
+    background-color: rgba(254, 226, 226, 0.8);
+    border-left-color: rgb(239, 68, 68);
+  }
+  51%, 100% {
+    background-color: rgba(248, 113, 113, 0.3);
+    border-left-color: rgb(220, 38, 38);
+  }
+}
+
+@keyframes glow-red-border {
+  0%, 50% {
+    border-left-color: rgb(239, 68, 68);
+    box-shadow: -2px 0 8px rgba(239, 68, 68, 0.4);
+  }
+  51%, 100% {
+    border-left-color: rgb(220, 38, 38);
+    box-shadow: -2px 0 12px rgba(220, 38, 38, 0.6);
+  }
+}
+
+.animate-blink-red {
+  animation: blink-red 1.5s ease-in-out infinite;
+}
+
+.animate-glow-red-border {
+  animation: glow-red-border 1.5s ease-in-out infinite;
+}
+
+.animate-blink-red:hover,
+.animate-glow-red-border:hover {
+  animation-play-state: paused;
+}
+
+/* Classe pour les correspondances non répondues - Rouge clignotant */
+.unresponded-correspondence {
+  background: linear-gradient(to right, rgba(254, 226, 226, 0.6), rgba(248, 113, 113, 0.3));
+  border-left: 4px solid rgb(239, 68, 68);
+  position: relative;
+}
+
+.unresponded-correspondence::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, rgb(239, 68, 68), rgb(220, 38, 38));
+  animation: glow-red-border 1.5s ease-in-out infinite;
+}
+
+/* Animation pour les tags */
+@keyframes tag-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+  }
+}
+
+.tag-selected {
+  animation: tag-glow 2s ease-in-out infinite;
+}
+
+/* Masquer la barre de défilement horizontale pour les tableaux */
+.hide-scrollbar {
+  overflow-x: hidden;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+/* Styles pour les tableaux de correspondances */
+.correspondances-table-container {
+  overflow-x: hidden;
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.correspondances-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Assurer que les cellules du tableau ne débordent pas */
+.correspondances-table td,
+.correspondances-table th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.correspondances-table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  font-weight: 600;
+  color: #334155;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.correspondances-table tbody tr {
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.correspondances-table tbody tr:hover {
+  background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.correspondances-table tbody tr.unresponded-row {
+  background: rgba(254, 202, 202, 0.5) !important;
+  border-left: 4px solid #dc2626 !important;
+  animation: urgent-blink 0.8s ease-in-out infinite !important;
+}
+
+.correspondances-table tbody tr.unresponded-row:hover {
+  background: linear-gradient(135deg, rgba(254, 202, 202, 0.7) 0%, rgba(248, 113, 113, 0.5) 100%) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3), 0 2px 4px -1px rgba(220, 38, 38, 0.2);
+  animation-play-state: paused !important;
+}
+
+/* Animation urgente et visible pour les correspondances non répondues */
+@keyframes urgent-blink {
+  0% {
+    background-color: rgba(254, 202, 202, 0.4) !important;
+    border-left-color: #dc2626 !important;
+    box-shadow: 0 0 0 rgba(220, 38, 38, 0);
+  }
+  50% {
+    background-color: rgba(239, 68, 68, 0.9) !important;
+    border-left-color: #991b1b !important;
+    box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+  }
+  100% {
+    background-color: rgba(254, 202, 202, 0.4) !important;
+    border-left-color: #dc2626 !important;
+    box-shadow: 0 0 0 rgba(220, 38, 38, 0);
+  }
+}
+
+/* S'assurer que les boutons d'action sont toujours visibles */
+
+/* Animations pour les notifications de progression */
+@keyframes progress-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes progress-fill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+@keyframes success-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-4px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+
+.progress-notification {
+  animation: progress-pulse 2s ease-in-out infinite;
+}
+
+.progress-bar-animated {
+  animation: progress-fill 0.8s ease-out;
+}
+
+.success-notification {
+  animation: success-bounce 0.6s ease-out;
+}
+
+.notification-gradient {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-left: 4px solid #0ea5e9;
+}
+
+.success-gradient {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left: 4px solid #22c55e;
+}
+
+.error-gradient {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-left: 4px solid #ef4444;
+}
+
+/* Styles pour le dialogue d'importation */
+.import-dialog-content {
+  max-width: 90vw;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+}
+
+.import-dialog-scroll {
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Masquer la scrollbar sur WebKit */
+.import-dialog-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.import-dialog-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.import-dialog-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.import-dialog-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Styles pour les sections d'upload */
+.upload-section {
+  transition: all 0.2s ease-in-out;
+}
+
+.upload-section:hover {
+  border-color: #0ea5e9;
+  background-color: #f0f9ff;
+}
+
+/* Styles pour la table de prévisualisation */
+.preview-table {
+  font-size: 0.75rem;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+
+.preview-table .truncate {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+  .import-dialog-content {
+    max-width: 95vw;
+    margin: 10px;
+  }
+  
+  .grid-cols-1.lg\\:grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  .upload-section {
+    padding: 16px;
+  }
+}

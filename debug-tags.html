@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Tags - AeroDoc</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🏷️ Debug Tags - AeroDoc</h1>
+    
+    <div class="debug-section info">
+        <h3>Instructions</h3>
+        <p>1. Ouvrez la console du navigateur (F12)</p>
+        <p>2. Connectez-vous à AeroDoc dans un autre onglet</p>
+        <p>3. Cliquez sur les boutons ci-dessous pour tester</p>
+    </div>
+
+    <div class="debug-section">
+        <h3>Tests de Base</h3>
+        <button onclick="testLocalStorage()">Tester LocalStorage</button>
+        <button onclick="testUserPermissions()">Tester Permissions</button>
+        <button onclick="testTagsAPI()">Tester API Tags</button>
+        <button onclick="clearLogs()">Effacer Console</button>
+    </div>
+
+    <div class="debug-section">
+        <h3>Tests Avancés</h3>
+        <button onclick="testCreateTag()">Tester Création Tag</button>
+        <button onclick="testTagsRoute()">Tester Route Backend</button>
+        <button onclick="simulateDialogIssue()">Simuler Problème Dialog</button>
+    </div>
+
+    <div id="results" class="debug-section">
+        <h3>Résultats</h3>
+        <div id="output">Cliquez sur un bouton pour commencer les tests...</div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            console.log(`[DEBUG-TAGS] ${message}`);
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function clearLogs() {
+            console.clear();
+            document.getElementById('output').innerHTML = 'Console effacée...';
+        }
+
+        function testLocalStorage() {
+            log('=== Test LocalStorage ===');
+            const token = localStorage.getItem('token');
+            const userId = localStorage.getItem('userId');
+            const user = localStorage.getItem('user');
+            
+            log(`Token: ${token ? 'Présent' : 'Absent'}`, token ? 'success' : 'error');
+            log(`UserId: ${userId || 'Absent'}`, userId ? 'success' : 'error');
+            log(`User: ${user ? 'Présent' : 'Absent'}`, user ? 'success' : 'error');
+            
+            if (user) {
+                try {
+                    const userData = JSON.parse(user);
+                    log(`Rôle utilisateur: ${userData.role}`, 'info');
+                    log(`Email: ${userData.email}`, 'info');
+                } catch (e) {
+                    log(`Erreur parsing user: ${e.message}`, 'error');
+                }
+            }
+        }
+
+        function testUserPermissions() {
+            log('=== Test Permissions ===');
+            const user = localStorage.getItem('user');
+            if (!user) {
+                log('Aucun utilisateur connecté', 'error');
+                return;
+            }
+            
+            try {
+                const userData = JSON.parse(user);
+                log(`Rôle: ${userData.role}`, 'info');
+                
+                // Simuler la logique de permissions
+                const isSuperAdmin = userData.role === 'SUPER_ADMIN';
+                const isAdmin = userData.role === 'ADMINISTRATOR';
+                const canManageTags = isSuperAdmin || isAdmin;
+                
+                log(`SUPER_ADMIN: ${isSuperAdmin}`, isSuperAdmin ? 'success' : 'info');
+                log(`ADMINISTRATOR: ${isAdmin}`, isAdmin ? 'success' : 'info');
+                log(`Peut gérer tags: ${canManageTags}`, canManageTags ? 'success' : 'error');
+                
+            } catch (e) {
+                log(`Erreur: ${e.message}`, 'error');
+            }
+        }
+
+        async function testTagsAPI() {
+            log('=== Test API Tags ===');
+            const token = localStorage.getItem('token');
+            if (!token) {
+                log('Aucun token disponible', 'error');
+                return;
+            }
+
+            try {
+                // Test GET /api/tags
+                const response = await fetch('http://localhost:5000/api/tags', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log(`GET /api/tags: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Tags trouvés: ${data.data?.length || 0}`, 'success');
+                    if (data.data?.length > 0) {
+                        log(`Premier tag: ${data.data[0].name}`, 'info');
+                    }
+                } else {
+                    const error = await response.text();
+                    log(`Erreur API: ${error}`, 'error');
+                }
+            } catch (e) {
+                log(`Erreur réseau: ${e.message}`, 'error');
+            }
+        }
+
+        async function testCreateTag() {
+            log('=== Test Création Tag ===');
+            const token = localStorage.getItem('token');
+            if (!token) {
+                log('Aucun token disponible', 'error');
+                return;
+            }
+
+            const testTag = {
+                name: `test-${Date.now()}`,
+                color: '#FF0000',
+                description: 'Tag de test créé par le script de debug'
+            };
+
+            try {
+                const response = await fetch('http://localhost:5000/api/tags', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testTag)
+                });
+                
+                log(`POST /api/tags: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Tag créé: ${data.data?.name}`, 'success');
+                } else {
+                    const error = await response.text();
+                    log(`Erreur création: ${error}`, 'error');
+                }
+            } catch (e) {
+                log(`Erreur réseau: ${e.message}`, 'error');
+            }
+        }
+
+        async function testTagsRoute() {
+            log('=== Test Route Backend ===');
+            try {
+                const response = await fetch('http://localhost:5000/api/tags', {
+                    method: 'OPTIONS'
+                });
+                log(`OPTIONS /api/tags: ${response.status}`, response.ok ? 'success' : 'error');
+            } catch (e) {
+                log(`Serveur backend inaccessible: ${e.message}`, 'error');
+            }
+        }
+
+        function simulateDialogIssue() {
+            log('=== Simulation Problème Dialog ===');
+            log('Vérifiez dans AeroDoc si:', 'info');
+            log('1. Le dialogue s\'ouvre puis se ferme immédiatement', 'info');
+            log('2. Un message de succès apparaît sans raison', 'info');
+            log('3. La console affiche des erreurs', 'info');
+            log('Ouvrez les DevTools et regardez l\'onglet Network', 'info');
+        }
+
+        // Auto-test au chargement
+        window.onload = function() {
+            log('Script de debug chargé', 'success');
+            log('Prêt pour les tests !', 'info');
+        };
+    </script>
+</body>
+</html>

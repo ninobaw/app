@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Rapide - Tags</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .command { background: #343a40; color: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0; font-family: monospace; }
+        button { padding: 8px 12px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Rapide - Tags</h1>
+        
+        <h3>Instructions :</h3>
+        <p>1. Allez dans AeroDoc > Paramètres > Tags</p>
+        <p>2. Ouvrez la console (F12)</p>
+        <p>3. Copiez et exécutez cette commande :</p>
+        
+        <button onclick="copyCommand()">📋 Copier Commande</button>
+        
+        <div class="command" id="debugCommand">
+// Test rapide du dialogue tags
+console.log('🔍 DEBUT DEBUG RAPIDE');
+
+// 1. Vérifier les permissions
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+console.log('👤 Utilisateur:', user.email, 'Rôle:', user.role);
+
+// 2. Vérifier si on est sur la bonne page
+const currentUrl = window.location.href;
+console.log('📍 URL actuelle:', currentUrl);
+
+// 3. Chercher le bouton "Nouveau tag"
+const buttons = Array.from(document.querySelectorAll('button'));
+const tagButton = buttons.find(b => b.textContent?.includes('Nouveau tag'));
+console.log('🔘 Bouton "Nouveau tag" trouvé:', !!tagButton);
+
+if (tagButton) {
+    console.log('🔘 Texte du bouton:', tagButton.textContent);
+    console.log('🔘 Classes du bouton:', tagButton.className);
+    
+    // 4. Tester le clic
+    console.log('👆 Test du clic...');
+    tagButton.click();
+    
+    // 5. Vérifier après le clic
+    setTimeout(() => {
+        const dialog = document.querySelector('[role="dialog"]');
+        console.log('💬 Dialogue présent après clic:', !!dialog);
+        
+        if (!dialog) {
+            console.log('❌ PROBLEME: Le dialogue ne s\'ouvre pas');
+            console.log('🔍 Vérifiez les logs SettingsPage et TagManagementSection ci-dessus');
+        } else {
+            console.log('✅ SUCCES: Le dialogue s\'ouvre !');
+        }
+    }, 500);
+} else {
+    console.log('❌ PROBLEME: Bouton "Nouveau tag" non trouvé');
+    console.log('🔍 Boutons disponibles:', buttons.map(b => b.textContent?.trim()).filter(Boolean));
+}
+
+console.log('🔍 FIN DEBUG RAPIDE');
+        </div>
+        
+        <h3>Logs à surveiller :</h3>
+        <ul>
+            <li><strong>SettingsPage:</strong> Rendering TagManagementSection with onCreateTag</li>
+            <li><strong>TagManagementSection:</strong> onCreateTag prop</li>
+            <li><strong>TagManagementSection:</strong> handleCreateDialogOpen called</li>
+            <li><strong>SettingsPage:</strong> handleCreateTagDialogOpen called</li>
+        </ul>
+    </div>
+
+    <script>
+        function copyCommand() {
+            const command = document.getElementById('debugCommand').textContent;
+            navigator.clipboard.writeText(command).then(() => {
+                alert('Commande copiée ! Collez-la dans la console d\'AeroDoc.');
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+title,type,from_address,to_address,subject,content,priority,status,airport,tags,file_name,responseReference,responseDate,informationTransmittedTo,informationAcknowledged,informationActions
+Exemple Correspondance 1,INCOMING,expediteur@exemple.com,destinataire@exemple.com,Objet exemple,Contenu de la correspondance,MEDIUM,PENDING,ENFIDHA,urgent,document1.pdf,,,,,
+Exemple Correspondance 2,OUTGOING,mon@email.com,client@exemple.com,Réponse officielle,Contenu de la réponse,HIGH,REPLIED,MONASTIR,officiel,reponse.docx,REP-2024-001,2024-01-15,Service Comptabilité,true,Document transmis et validé
+Exemple Informatif,INCOMING,info@source.com,equipe@aeroport.tn,Information technique,Information à transmettre,LOW,INFORMATIF,ENFIDHA,informatif,rapport.pdf,,,Directeur Technique,false,En attente de traitement

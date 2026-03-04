@@ -1,0 +1,276 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$authentication": {
+      "defaultValue": {},
+      "type": "SecureObject"
+    },
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    }
+  },
+  "triggers": {
+    "Recurrence": {
+      "recurrence": {
+        "interval": 1,
+        "frequency": "Hour",
+        "schedule": {
+          "hours": [8, 10, 12, 14, 16, 18],
+          "minutes": [0]
+        }
+      },
+      "type": "Recurrence"
+    }
+  },
+  "actions": {
+    "Get_emails_(V3)": {
+      "runAfter": {},
+      "metadata": {
+        "Id::AAMkADNjNGNkYTFlLTc0YWUtNGM0NC1iNzQwLTk5N2M2MTQxZTliMAAuAAAAAABrAWntgcEpRZ-G6mFmzL-CAQA75PWpuBPHQoyqW5CX8adGAAIV6lJqAAA=": "From Asma",
+        "Id::AAMkADNjNGNkYTFlLTc0YWUtNGM0NC1iNzQwLTk5N2M2MTQxZTliMAAuAAAAAABrAWntgcEpRZ-G6mFmzL-CAQA75PWpuBPHQoyqW5CX8adGAAIV6lJpAAA=": "From Nadia",
+        "Id::AAMkADNjNGNkYTFlLTc0YWUtNGM0NC1iNzQwLTk5N2M2MTQxZTliMAAuAAAAAABrAWntgcEpRZ-G6mFmzL-CAQA75PWpuBPHQoyqW5CX8adGAAIV6lJrAAA=": "From Marwa"
+      },
+      "type": "OpenApiConnection",
+      "inputs": {
+        "parameters": {
+          "importance": "Any",
+          "fetchOnlyWithAttachment": false,
+          "folderPath": "Id::AAMkADNjNGNkYTFlLTc0YWUtNGM0NC1iNzQwLTk5N2M2MTQxZTliMAAuAAAAAABrAWntgcEpRZ-G6mFmzL-CAQA75PWpuBPHQoyqW5CX8adGAAIV6lJpAAA=",
+          "fetchOnlyUnread": true,
+          "includeAttachments": true,
+          "top": 50
+        },
+        "host": {
+          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+          "connectionName": "shared_office365",
+          "operationId": "GetEmailsV3"
+        },
+        "authentication": "@parameters('$authentication')"
+      }
+    },
+    "Initialize_variable_-_Counter": {
+      "runAfter": {
+        "Get_emails_(V3)": ["Succeeded"]
+      },
+      "type": "InitializeVariable",
+      "inputs": {
+        "variables": [
+          {
+            "name": "SequenceCounter",
+            "type": "integer",
+            "value": 1
+          }
+        ]
+      }
+    },
+    "For_each_email": {
+      "foreach": "@outputs('Get_emails_(V3)')?['body/value']",
+      "actions": {
+        "Html_to_text": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "Content": "@{items('For_each_email')?['body']}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_conversionservice",
+              "connectionName": "shared_conversionservice",
+              "operationId": "HtmlToText"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Compose_-_Generate_ID": {
+          "runAfter": {
+            "Html_to_text": ["Succeeded"]
+          },
+          "type": "Compose",
+          "inputs": "CORR-@{formatDateTime(utcNow(), 'yyyy-MM')}-@{padLeft(variables('SequenceCounter'), 3, '0')}"
+        },
+        "Compose_-_Generate_QR_Code": {
+          "runAfter": {
+            "Compose_-_Generate_ID": ["Succeeded"]
+          },
+          "type": "Compose",
+          "inputs": "QR-@{outputs('Compose_-_Generate_ID')}"
+        },
+        "Compose_-_Determine_Type": {
+          "runAfter": {
+            "Compose_-_Generate_QR_Code": ["Succeeded"]
+          },
+          "type": "Compose",
+          "inputs": "@if(contains(toLower(items('For_each_email')?['from']), 'tav.aero'), 'OUTGOING', 'INCOMING')"
+        },
+        "Compose_-_Determine_Priority": {
+          "runAfter": {
+            "Compose_-_Determine_Type": ["Succeeded"]
+          },
+          "type": "Compose",
+          "inputs": "@if(equals(items('For_each_email')?['importance'], 'high'), 'HIGH', if(equals(items('For_each_email')?['importance'], 'low'), 'LOW', 'MEDIUM'))"
+        },
+        "Compose_-_Determine_Status": {
+          "runAfter": {
+            "Compose_-_Determine_Priority": ["Succeeded"]
+          },
+          "type": "Compose",
+          "inputs": "@if(contains(toLower(items('For_each_email')?['subject']), 'fyi'), 'INFORMATIF', if(contains(toLower(items('For_each_email')?['subject']), 're:'), 'REPLIED', 'PENDING'))"
+        },
+        "Compose_-_Extract_Tags": {
+          "runAfter": {
+            "Compose_-_Determine_Status": ["Succeeded"]
+          },
+          "type": "Compose",
+          "inputs": "@join(createArray(if(contains(toLower(items('For_each_email')?['subject']), 'urgent'), 'urgent', ''), if(contains(toLower(items('For_each_email')?['subject']), 'sécurité'), 'sécurité', ''), if(contains(toLower(items('For_each_email')?['subject']), 'maintenance'), 'maintenance', ''), if(contains(toLower(items('For_each_email')?['subject']), 'opération'), 'opération', '')), ';')"
+        },
+        "Compose_-_Determine_Airport": {
+          "runAfter": {
+            "Compose_-_Extract_Tags": ["Succeeded"]
+          },
+          "type": "Compose",
+          "inputs": "@if(or(contains(toLower(items('For_each_email')?['subject']), 'enfidha'), contains(toLower(items('For_each_email')?['subject']), 'nbe')), 'ENFIDHA', if(or(contains(toLower(items('For_each_email')?['subject']), 'monastir'), contains(toLower(items('For_each_email')?['subject']), 'skanes')), 'MONASTIR', 'GENERALE'))"
+        },
+        "Condition_-_Has_Attachments": {
+          "runAfter": {
+            "Compose_-_Determine_Airport": ["Succeeded"]
+          },
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "greater": [
+                  "@length(items('For_each_email')?['attachments'])",
+                  0
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "For_each_attachment": {
+              "foreach": "@items('For_each_email')?['attachments']",
+              "actions": {
+                "Create_file_in_OneDrive": {
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "folderPath": "/SGDO/Correspondances/@{formatDateTime(utcNow(), 'yyyy-MM')}",
+                      "name": "@{outputs('Compose_-_Generate_ID')}_@{items('For_each_attachment')?['name']}",
+                      "body": "@items('For_each_attachment')?['contentBytes']"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_onedriveforbusiness",
+                      "connectionName": "shared_onedriveforbusiness",
+                      "operationId": "CreateFile"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                }
+              },
+              "type": "Foreach"
+            }
+          },
+          "else": {
+            "actions": {}
+          }
+        },
+        "Add_row_to_Excel": {
+          "runAfter": {
+            "Condition_-_Has_Attachments": ["Succeeded"]
+          },
+          "metadata": {
+            "01E5DJX75JUY4G2PYASNDZQ2IZX3P5NXWQ": "/SGDO/correspondances_import.xlsx",
+            "tableId": "{475B325C-514C-4F0E-96FF-FC8937ED2349}"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "source": "me",
+              "drive": "b!iQ6vtCZfJUOv5D1bYDpJfhxukF20A61PmDqnyUUEQ-vWbK1V7ZrlQ4r2TLqhctZA",
+              "file": "01E5DJX75JUY4G2PYASNDZQ2IZX3P5NXWQ",
+              "table": "{475B325C-514C-4F0E-96FF-FC8937ED2349}",
+              "dateTimeFormat": "ISO 8601",
+              "item/ID": "@outputs('Compose_-_Generate_ID')",
+              "item/Title": "@items('For_each_email')?['subject']",
+              "item/Type": "@outputs('Compose_-_Determine_Type')",
+              "item/Code": "",
+              "item/FromAddress": "@items('For_each_email')?['from']",
+              "item/ToAddress": "@join(items('For_each_email')?['toRecipients'], ';')@if(greater(length(items('For_each_email')?['ccRecipients']), 0), concat(';', join(items('For_each_email')?['ccRecipients'], ';')), '')",
+              "item/Subject": "@items('For_each_email')?['subject']",
+              "item/Content": "@body('Html_to_text')",
+              "item/Priority": "@outputs('Compose_-_Determine_Priority')",
+              "item/Status": "@outputs('Compose_-_Determine_Status')",
+              "item/Airport": "@outputs('Compose_-_Determine_Airport')",
+              "item/AuthorId": "system-import",
+              "item/QRCode": "@outputs('Compose_-_Generate_QR_Code')",
+              "item/FilePath": "@if(greater(length(items('For_each_email')?['attachments']), 0), concat('/uploads/correspondances/', formatDateTime(utcNow(), 'yyyy-MM'), '/', outputs('Compose_-_Generate_ID'), '_', first(items('For_each_email')?['attachments'])?['name']), '')",
+              "item/FileType": "@if(greater(length(items('For_each_email')?['attachments']), 0), last(split(first(items('For_each_email')?['attachments'])?['name'], '.')), '')",
+              "item/Tags": "@outputs('Compose_-_Extract_Tags')",
+              "item/ResponseReference": "",
+              "item/ResponseDate": "",
+              "item/InformationTransmittedTo": "",
+              "item/InformationAcknowledged": "FALSE",
+              "item/InformationActions": "",
+              "item/ResponseDeadline": "@if(equals(outputs('Compose_-_Determine_Priority'), 'HIGH'), formatDateTime(addDays(utcNow(), 2), 'yyyy-MM-ddTHH:mm:ssZ'), if(equals(outputs('Compose_-_Determine_Priority'), 'URGENT'), formatDateTime(addDays(utcNow(), 1), 'yyyy-MM-ddTHH:mm:ssZ'), formatDateTime(addDays(utcNow(), 7), 'yyyy-MM-ddTHH:mm:ssZ')))",
+              "item/IsUrgent": "@if(or(equals(outputs('Compose_-_Determine_Priority'), 'URGENT'), contains(toLower(items('For_each_email')?['subject']), 'urgent')), 'TRUE', 'FALSE')",
+              "item/IsConfidential": "@if(or(contains(toLower(items('For_each_email')?['subject']), 'confidentiel'), contains(toLower(items('For_each_email')?['subject']), 'confidential')), 'TRUE', 'FALSE')",
+              "item/CompanyCode": "TAV",
+              "item/ScopeCode": "@if(contains(toLower(items('For_each_email')?['subject']), 'sécurité'), 'SEC', if(contains(toLower(items('For_each_email')?['subject']), 'maintenance'), 'MAINT', if(contains(toLower(items('For_each_email')?['subject']), 'opération'), 'OPS', 'GEN')))",
+              "item/DepartmentCode": "CORR",
+              "item/SubDepartmentCode": "@outputs('Compose_-_Determine_Airport')",
+              "item/LanguageCode": "@if(contains(toLower(body('Html_to_text')), 'bonjour'), 'FR', if(contains(toLower(body('Html_to_text')), 'hello'), 'EN', 'AR'))",
+              "item/SequenceNumber": "@variables('SequenceCounter')",
+              "item/CreatedAt": "@items('For_each_email')?['receivedDateTime']",
+              "item/UpdatedAt": "@utcNow()"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness",
+              "connectionName": "shared_excelonlinebusiness",
+              "operationId": "AddRowV2"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Mark_email_as_read": {
+          "runAfter": {
+            "Add_row_to_Excel": ["Succeeded"]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "messageId": "@items('For_each_email')?['id']",
+              "isRead": true
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+              "connectionName": "shared_office365",
+              "operationId": "MarkAsRead"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Increment_variable": {
+          "runAfter": {
+            "Mark_email_as_read": ["Succeeded"]
+          },
+          "type": "IncrementVariable",
+          "inputs": {
+            "name": "SequenceCounter",
+            "value": 1
+          }
+        }
+      },
+      "runAfter": {
+        "Initialize_variable_-_Counter": ["Succeeded"]
+      },
+      "type": "Foreach"
+    }
+  },
+  "outputs": {},
+  "description": "Script amélioré pour extraire les correspondances et les adapter au format SGDO avec génération automatique d'IDs, QR codes, et classification intelligente."
+}

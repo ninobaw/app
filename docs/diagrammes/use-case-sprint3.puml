@@ -1,0 +1,30 @@
+@startuml
+left to right direction
+
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+actor "Super Admin" as SuperAdmin
+
+rectangle "Système SGDO - Sprint 3" {
+  usecase "Modifier son Profil Personnel" as UC_EditProfile
+  usecase "Recevoir des Notifications" as UC_ReceiveNotifications
+  usecase "Scanner un QR Code" as UC_ScanQRCode
+  usecase "Générer un QR Code" as UC_GenerateQRCode
+  usecase "Gérer les Paramètres du Système" as UC_ManageSettings
+  usecase "S'authentifier de Manière Sécurisée" as UC_SecureAuth
+}
+
+' Relations entre acteurs et cas d'utilisation
+User --> UC_EditProfile
+User --> UC_ReceiveNotifications
+User --> UC_ScanQRCode
+User --> UC_SecureAuth
+
+Admin --> UC_GenerateQRCode
+Admin --> UC_ManageSettings
+Admin --> UC_SecureAuth
+
+SuperAdmin --> UC_ManageSettings
+SuperAdmin --> UC_SecureAuth
+
+@enduml

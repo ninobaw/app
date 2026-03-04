@@ -1,0 +1,38 @@
+@startuml
+left to right direction
+
+actor "Utilisateur" as User
+actor "Agent Bureau d'Ordre" as AgentBO
+actor "Administrateur" as Admin
+actor "Approbateur" as Approver
+
+rectangle "Système SGDO - Sprint 1" {
+  usecase "Créer un Document" as UC_CreateDoc
+  usecase "Consulter les Documents" as UC_ViewDocs
+  usecase "Gérer les Documents Qualité" as UC_ManageQualityDocs
+  usecase "Suivre l'Historique d'un Document" as UC_DocHistory
+  usecase "Créer une Correspondance" as UC_CreateCorr
+  usecase "Enregistrer un Procès-Verbal" as UC_CreatePV
+  usecase "Suivre les Actions Correctives (PV)" as UC_PV_Actions
+}
+
+' Relations entre acteurs et cas d'utilisation
+User --> UC_CreateDoc
+User --> UC_ViewDocs
+User --> UC_DocHistory
+
+AgentBO --> UC_CreateCorr
+AgentBO --> UC_ViewDocs
+
+Approver --> UC_ManageQualityDocs
+Approver --> UC_ViewDocs
+
+Admin --> UC_CreateDoc
+Admin --> UC_ViewDocs
+Admin --> UC_ManageQualityDocs
+Admin --> UC_DocHistory
+Admin --> UC_CreateCorr
+Admin --> UC_CreatePV
+Admin --> UC_PV_Actions
+
+@enduml

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Dialogue Force - AeroDoc</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .log { background: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto; }
+        .command { background: #343a40; color: #f8f9fa; padding: 10px; border-radius: 3px; margin: 10px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Debug Dialogue Force - AeroDoc</h1>
+        
+        <div class="test-section info">
+            <h3>📋 Instructions</h3>
+            <p><strong>1.</strong> Connectez-vous à AeroDoc dans un autre onglet</p>
+            <p><strong>2.</strong> Allez dans Paramètres > Tags</p>
+            <p><strong>3.</strong> Ouvrez la console du navigateur (F12)</p>
+            <p><strong>4.</strong> Exécutez les commandes ci-dessous dans la console</p>
+        </div>
+
+        <div class="test-section">
+            <h3>🚀 Commandes de Debug</h3>
+            <button onclick="copyCommand('forceOpen')">Copier: Forcer Ouverture</button>
+            <button onclick="copyCommand('checkState')">Copier: Vérifier État</button>
+            <button onclick="copyCommand('watchChanges')">Copier: Surveiller Changements</button>
+            <button onclick="copyCommand('preventClose')">Copier: Empêcher Fermeture</button>
+        </div>
+
+        <div class="test-section">
+            <h3>💻 Commandes Console</h3>
+            
+            <h4>1. Forcer l'ouverture du dialogue :</h4>
+            <div class="command" id="forceOpen">
+// Forcer l'ouverture du dialogue
+window.forceOpenTagDialog = () => {
+    console.log('🔧 Forcing tag dialog to open...');
+    
+    // Chercher le bouton "Nouveau tag"
+    const button = document.querySelector('button:has(svg + span)') || 
+                   Array.from(document.querySelectorAll('button')).find(b => b.textContent?.includes('Nouveau tag'));
+    
+    if (button) {
+        console.log('✅ Found "Nouveau tag" button, clicking...');
+        button.click();
+        
+        // Vérifier après 1 seconde
+        setTimeout(() => {
+            const dialog = document.querySelector('[role="dialog"]');
+            console.log('Dialog found after click:', !!dialog);
+            if (dialog) {
+                console.log('Dialog content:', dialog.innerHTML.substring(0, 200) + '...');
+            }
+        }, 1000);
+    } else {
+        console.log('❌ "Nouveau tag" button not found');
+        console.log('Available buttons:', Array.from(document.querySelectorAll('button')).map(b => b.textContent));
+    }
+};
+
+// Exécuter
+window.forceOpenTagDialog();
+            </div>
+
+            <h4>2. Vérifier l'état du dialogue :</h4>
+            <div class="command" id="checkState">
+// Vérifier l'état actuel
+window.checkDialogState = () => {
+    console.log('🔍 Checking dialog state...');
+    
+    const dialog = document.querySelector('[role="dialog"]');
+    const overlay = document.querySelector('[data-radix-dialog-overlay]');
+    const content = document.querySelector('[data-radix-dialog-content]');
+    
+    console.log('Dialog element:', !!dialog);
+    console.log('Overlay element:', !!overlay);
+    console.log('Content element:', !!content);
+    
+    if (dialog) {
+        console.log('Dialog visible:', dialog.style.display !== 'none');
+        console.log('Dialog classes:', dialog.className);
+    }
+    
+    // Vérifier les logs récents
+    console.log('Recent SettingsPage logs should show above...');
+};
+
+// Exécuter
+window.checkDialogState();
+            </div>
+
+            <h4>3. Surveiller les changements :</h4>
+            <div class="command" id="watchChanges">
+// Surveiller les changements du DOM
+window.watchDialogChanges = () => {
+    console.log('👀 Starting dialog DOM watcher...');
+    
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1 && (
+                        node.matches('[role="dialog"]') || 
+                        node.querySelector('[role="dialog"]')
+                    )) {
+                        console.log('🆕 Dialog added to DOM:', node);
+                    }
+                });
+                
+                mutation.removedNodes.forEach((node) => {
+                    if (node.nodeType === 1 && (
+                        node.matches('[role="dialog"]') || 
+                        node.querySelector('[role="dialog"]')
+                    )) {
+                        console.log('🗑️ Dialog removed from DOM:', node);
+                        console.trace('Dialog removal stack trace:');
+                    }
+                });
+            }
+        });
+    });
+    
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    console.log('✅ DOM watcher started. Try opening the dialog now...');
+    
+    // Arrêter après 30 secondes
+    setTimeout(() => {
+        observer.disconnect();
+        console.log('🛑 DOM watcher stopped');
+    }, 30000);
+};
+
+// Exécuter
+window.watchDialogChanges();
+            </div>
+
+            <h4>4. Empêcher la fermeture :</h4>
+            <div class="command" id="preventClose">
+// Empêcher toute fermeture de dialogue
+window.preventDialogClose = () => {
+    console.log('🛡️ Setting up dialog close prevention...');
+    
+    // Intercepter tous les événements de fermeture
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            console.log('🚫 Prevented Escape key');
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+    
+    document.addEventListener('click', (e) => {
+        const dialog = document.querySelector('[role="dialog"]');
+        if (dialog && !dialog.contains(e.target)) {
+            console.log('🚫 Prevented outside click');
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
+    
+    console.log('✅ Dialog close prevention active');
+};
+
+// Exécuter
+window.preventDialogClose();
+            </div>
+        </div>
+
+        <div class="test-section warning">
+            <h3>📊 Analyse des Logs</h3>
+            <p>Après avoir exécuté les commandes, analysez les logs pour identifier :</p>
+            <ul>
+                <li><strong>Montage/Démontage :</strong> "Component mounted/unmounted"</li>
+                <li><strong>Changements d'état :</strong> "createTagDialogOpen changed to"</li>
+                <li><strong>Rendus :</strong> "Rendering with open ="</li>
+                <li><strong>Fermetures :</strong> "Dialog was closed, stack trace"</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function copyCommand(commandId) {
+            const command = document.getElementById(commandId).textContent;
+            navigator.clipboard.writeText(command).then(() => {
+                alert('Commande copiée ! Collez-la dans la console du navigateur.');
+            });
+        }
+    </script>
+</body>
+</html>

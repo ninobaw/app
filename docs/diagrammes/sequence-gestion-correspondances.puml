@@ -1,0 +1,53 @@
+@startuml
+actor "Agent Bureau d'Ordre" as AgentBO
+participant "Frontend\n(Application Web)" as Frontend
+participant "Backend\n(API SGDO)" as Backend
+database "Base de Données\n(MongoDB)" as DB
+collections "Système de Fichiers\n(Uploads)" as FS
+participant "Service de Notifications\n(Email/SMS)" as NotifService
+
+title Diagramme de Séquence - Gestion des Correspondances (Création)
+
+AgentBO -> Frontend: 1. Clic sur "Nouvelle Correspondance"
+activate Frontend
+Frontend --> AgentBO: 2. Affiche le formulaire de création
+deactivate Frontend
+
+AgentBO -> Frontend: 3. Saisit les informations\n(expéditeur, destinataire, objet, contenu, etc.)\n+ Attache un fichier (optionnel)
+activate Frontend
+
+Frontend -> Backend: 4. Requête POST /api/correspondances\n(données du formulaire, fichier)
+activate Backend
+Frontend deactivate
+
+Backend -> FS: 4.1. Upload du fichier attaché
+activate FS
+FS --> Backend: 4.2. Chemin du fichier sauvegardé
+deactivate FS
+
+Backend -> DB: 4.3. Récupère la configuration des codes documentaires
+activate DB
+DB --> Backend: 4.4. Configuration des codes
+deactivate DB
+
+Backend -> Backend: 4.5. Génère le code de correspondance\n(ex: SGDO-NBE-OPS-OUT-001-FR)\n+ Génère le QR Code (URL publique)\n+ Incrémente le numéro de séquence
+
+Backend -> DB: 4.6. Sauvegarde la nouvelle correspondance\n(avec code, QR, chemin fichier)
+activate DB
+DB --> Backend: 4.7. Correspondance enregistrée (ID)
+deactivate DB
+
+alt Si actions décidées ou destinataire email
+    Backend -> NotifService: 4.8. Envoie notifications\n(email/SMS) aux destinataires\n/responsables d'actions
+    activate NotifService
+    NotifService --> Backend: 4.9. Notifications envoyées
+    deactivate NotifService
+end
+
+Backend --> Frontend: 5. Réponse: Succès (Correspondance créée)
+deactivate Backend
+activate Frontend
+Frontend --> AgentBO: 6. Affiche message de confirmation\n(ex: "Correspondance créée avec succès")
+deactivate Frontend
+
+@enduml

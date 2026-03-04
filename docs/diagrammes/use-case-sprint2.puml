@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+
+actor "Utilisateur" as User
+actor "Administrateur" as Admin
+actor "Super Admin" as SuperAdmin
+
+rectangle "Système SGDO - Sprint 2" {
+  usecase "Gérer les Utilisateurs" as UC_ManageUsers
+  usecase "Attribuer les Rôles et Permissions" as UC_AssignRoles
+  usecase "Consulter son Tableau de Bord" as UC_ViewDashboard
+  usecase "Consulter les Journaux d'Activité" as UC_ViewAuditLogs
+  usecase "Générer les Rapports" as UC_GenerateReports
+}
+
+' Relations entre acteurs et cas d'utilisation
+User --> UC_ViewDashboard
+
+Admin --> UC_ManageUsers
+Admin --> UC_AssignRoles
+Admin --> UC_ViewDashboard
+Admin --> UC_ViewAuditLogs
+Admin --> UC_GenerateReports
+
+SuperAdmin --> UC_ManageUsers
+SuperAdmin --> UC_AssignRoles
+SuperAdmin --> UC_ViewDashboard
+SuperAdmin --> UC_ViewAuditLogs
+SuperAdmin --> UC_GenerateReports
+
+@enduml

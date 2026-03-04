@@ -1,0 +1,66 @@
+@startuml
+left to right direction
+
+actor "Utilisateur" as User
+actor "Agent Bureau d'Ordre" as AgentBO
+actor "Approbateur" as Approver
+actor "Administrateur" as Admin
+actor "Super Admin" as SuperAdmin
+
+rectangle "Système SGDO" {
+  usecase "S'authentifier" as UC_Auth
+  usecase "Gérer son profil" as UC_Profile
+  usecase "Consulter le Dashboard" as UC_Dashboard
+
+  usecase "Gérer les Documents" as UC_Documents
+  usecase "Gérer les Correspondances" as UC_Correspondances
+  usecase "Gérer les Procès-Verbaux" as UC_PV
+  usecase "Gérer les Actions" as UC_Actions
+  usecase "Gérer les Modèles" as UC_Templates
+
+  usecase "Gérer les Utilisateurs" as UC_Users
+  usecase "Générer et Consulter les Rapports" as UC_Reports
+  usecase "Consulter les Journaux d'Audit" as UC_AuditLogs
+  usecase "Configurer le Système" as UC_Settings
+}
+
+' Relations d'héritage entre acteurs
+User <|-- AgentBO
+User <|-- Approver
+Approver <|-- Admin
+Admin <|-- SuperAdmin
+
+' Relations entre acteurs et cas d'utilisation
+(UC_Auth) <.. User
+(UC_Profile) <.. User
+(UC_Dashboard) <.. User
+
+User ..> (UC_Documents) : <<utilise>>
+User ..> (UC_Actions) : <<utilise>>
+
+AgentBO ..> (UC_Correspondances) : <<utilise>>
+AgentBO ..> (UC_Documents) : <<utilise>>
+
+Approver ..> (UC_Documents) : <<approuve>>
+Approver ..> (UC_Templates) : <<gère>>
+
+Admin ..> (UC_Users) : <<gère>>
+Admin ..> (UC_Reports) : <<génère>>
+Admin ..> (UC_AuditLogs) : <<consulte>>
+Admin ..> (UC_Correspondances) : <<gère>>
+Admin ..> (UC_PV) : <<gère>>
+Admin ..> (UC_Templates) : <<gère>>
+Admin ..> (UC_Documents) : <<gère>>
+Admin ..> (UC_Actions) : <<gère>>
+
+SuperAdmin ..> (UC_Settings) : <<configure>>
+SuperAdmin ..> (UC_Users) : <<gère>>
+SuperAdmin ..> (UC_Reports) : <<génère>>
+SuperAdmin ..> (UC_AuditLogs) : <<consulte>>
+SuperAdmin ..> (UC_Documents) : <<gère>>
+SuperAdmin ..> (UC_Correspondances) : <<gère>>
+SuperAdmin ..> (UC_PV) : <<gère>>
+SuperAdmin ..> (UC_Actions) : <<gère>>
+SuperAdmin ..> (UC_Templates) : <<gère>>
+
+@enduml
